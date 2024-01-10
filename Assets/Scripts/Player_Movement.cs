@@ -9,6 +9,7 @@ public class Player_Movement : MonoBehaviour
     public GameObject Camera;
     public GameObject Model;
     public LayerMask LayerMask;
+    public GameObject ActiveGun;
 
     [SerializeField] private float movespeed;
     [SerializeField] private float JumpPower;
@@ -51,15 +52,18 @@ public class Player_Movement : MonoBehaviour
 
     public void Look(InputAction.CallbackContext context)
     {
-        Vector2 angle = context.ReadValue<Vector2>()/900 * sensibility;
+        if (mouselock)
+        {
+            Vector2 angle = context.ReadValue<Vector2>() / 900 * sensibility;
 
-        rotationX -= angle.y;
-        rotationY += angle.x;
+            rotationX -= angle.y;
+            rotationY += angle.x;
 
-        rotationX = Mathf.Clamp(rotationX, -80f, 80f);
+            rotationX = Mathf.Clamp(rotationX, -80f, 80f);
 
-        Camera.transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
-        Model.transform.rotation = Quaternion.Euler( 0, rotationY, 0);
+            Camera.transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
+            Model.transform.rotation = Quaternion.Euler(0, rotationY, 0);
+        }
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -96,4 +100,11 @@ public class Player_Movement : MonoBehaviour
             mouselock = true;
         }
     }
+
+    public void Shoot(InputAction.CallbackContext context)
+    {
+        ActiveGun.GetComponent<Gun_Behavior>().Shoot(context);
+    }
+
+
 }
