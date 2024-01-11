@@ -18,8 +18,8 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private GameObject Slider;
     [SerializeField] private GameObject text;
     private float sensibility;
-    private float rotationX, rotationY;
-    private bool Grounded = false;
+    public float rotationX, rotationY;
+    public bool Grounded = false;
     [SerializeField] private float gravity;
     private Vector3 VerticalVelocity = Vector3.zero;
     private Vector3 HorizontalVelocity;
@@ -27,7 +27,7 @@ public class Player_Movement : MonoBehaviour
 
     private void Awake()
     {
-        sensibility = 90;
+        sensibility = 80;
         rotationX = 0;
         rotationY = 0;
     }
@@ -62,6 +62,10 @@ public class Player_Movement : MonoBehaviour
         VerticalVelocity += Vector3.down * gravity * Time.fixedDeltaTime;
 
         transform.GetComponent<CharacterController>().Move(VerticalVelocity * Time.fixedDeltaTime);
+
+        rotationX = Mathf.Clamp(rotationX, -80f, 80f);
+        Camera.transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
+        Model.transform.rotation = Quaternion.Euler(0, rotationY, 0);
     }
 
     public void Look(InputAction.CallbackContext context)
@@ -72,11 +76,6 @@ public class Player_Movement : MonoBehaviour
 
             rotationX -= angle.y;
             rotationY += angle.x;
-
-            rotationX = Mathf.Clamp(rotationX, -80f, 80f);
-
-            Camera.transform.rotation = Quaternion.Euler(rotationX, rotationY, 0);
-            Model.transform.rotation = Quaternion.Euler(0, rotationY, 0);
         }
     }
 
@@ -126,7 +125,6 @@ public class Player_Movement : MonoBehaviour
         if (mouselock)
         {
             ActiveGun.GetComponent<Gun_Behavior>().Shoot(context);
-
         }
     }
 

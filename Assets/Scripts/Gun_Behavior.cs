@@ -10,7 +10,10 @@ public class Gun_Behavior : MonoBehaviour
     [SerializeField] private GameObject Camera;
     [SerializeField] private GameObject Impact;
     [SerializeField] private GameObject Linerenderer;
+    [SerializeField] private float recoil;
+    [SerializeField] private GameObject next_weapon;
     private bool is_shooting = false;
+    
 
     private void Update()
     {
@@ -27,6 +30,7 @@ public class Gun_Behavior : MonoBehaviour
     {
         do
         {
+            Player.GetComponent<Player_Movement>().rotationX -= recoil;
             GameObject line = Instantiate(Linerenderer, transform.position, transform.rotation);
 
             line.GetComponent<LineRenderer>().SetPosition(0, transform.GetChild(4).transform.position);
@@ -64,4 +68,37 @@ public class Gun_Behavior : MonoBehaviour
             is_shooting = false;
         }
     }
+
+    public void Switch_weapon(InputAction.CallbackContext context)
+    {
+        if (context.started)
+        {
+            if (this.gameObject.activeSelf)
+            {
+                StartCoroutine(swap());
+            }
+        }
+    }
+
+    private IEnumerator swap()
+    {
+        float t = 0f;
+        while (t < 1)
+        {
+            t += 0.1f;
+            transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, Mathf.Lerp(1f, -1.5f, t));
+            yield return new WaitForFixedUpdate();
+        }
+        next_weapon.SetActive(true);
+        Player.GetComponent<Player_Movement>().ActiveGun = next_weapon;
+        t = 0f;
+        while (t < 1)
+        {
+            t += 0.1f;
+            next_weapon.transform.localPosition = new Vector3(next_weapon.transform.localPosition.x, next_weapon.transform.localPosition.y, Mathf.Lerp(-1.5f, 1f, t));
+            yield return new WaitForFixedUpdate();
+        }
+        this.gameObject.SetActive(false);
+    }
+
 }
