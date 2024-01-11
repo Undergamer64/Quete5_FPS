@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class Player_Movement : MonoBehaviour
 {
@@ -13,7 +15,9 @@ public class Player_Movement : MonoBehaviour
 
     [SerializeField] private float movespeed;
     [SerializeField] private float JumpPower;
-    private int sensibility;
+    [SerializeField] private GameObject Slider;
+    [SerializeField] private GameObject text;
+    private float sensibility;
     private float rotationX, rotationY;
     private bool Grounded = false;
     [SerializeField] private float gravity;
@@ -28,8 +32,18 @@ public class Player_Movement : MonoBehaviour
         rotationY = 0;
     }
 
+    private void Start()
+    {
+        Slider.GetComponent<Slider>().onValueChanged.AddListener((v) =>
+        {
+            sensibility = v;
+        });
+    }
+
     void FixedUpdate()
     {
+        text.GetComponent<TextMeshProUGUI>().text = sensibility.ToString();
+
         if (mouselock)
         {
             Cursor.lockState = CursorLockMode.Locked;
@@ -68,23 +82,29 @@ public class Player_Movement : MonoBehaviour
 
     public void Move(InputAction.CallbackContext context)
     {
-        HorizontalVelocity = new Vector3(context.ReadValue<Vector2>().x * movespeed, context.ReadValue<Vector2>().y * movespeed, 0);
+        if (mouselock)
+        {
+            HorizontalVelocity = new Vector3(context.ReadValue<Vector2>().x * movespeed, context.ReadValue<Vector2>().y * movespeed, 0);
+        }
     }
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (Grounded)
+        if (mouselock)
         {
-            if (context.started)
+            if (Grounded)
             {
-                VerticalVelocity = Vector3.up * JumpPower;
+                if (context.started)
+                {
+                    VerticalVelocity = Vector3.up * JumpPower;
+                }
             }
-        }
-        if (context.canceled)
-        {
-            if (VerticalVelocity.y >= 0)
+            if (context.canceled)
             {
-                VerticalVelocity.y = VerticalVelocity.y * 0.50f;
+                if (VerticalVelocity.y >= 0)
+                {
+                    VerticalVelocity.y = VerticalVelocity.y * 0.50f;
+                }
             }
         }
     }
@@ -103,8 +123,11 @@ public class Player_Movement : MonoBehaviour
 
     public void Shoot(InputAction.CallbackContext context)
     {
-        ActiveGun.GetComponent<Gun_Behavior>().Shoot(context);
-    }
+        if (mouselock)
+        {
+            ActiveGun.GetComponent<Gun_Behavior>().Shoot(context);
 
+        }
+    }
 
 }

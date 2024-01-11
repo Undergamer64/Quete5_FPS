@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,36 +8,60 @@ public class Gun_Behavior : MonoBehaviour
 {
     [SerializeField] private GameObject Player;
     [SerializeField] private GameObject Camera;
-    private LineRenderer linerenderer;
+    [SerializeField] private GameObject Impact;
+    [SerializeField] private GameObject Linerenderer;
+    private bool is_shooting = false;
 
     private void Update()
     {
-        linerenderer = GetComponent<LineRenderer>();
+        
     }
 
-    private IEnumerator despawn_bullet()
+    private IEnumerator despawn_bullet(GameObject line)
     {
         yield return new WaitForSeconds(0.1f);
-        linerenderer.enabled = false;
+        Destroy(line);
+    }
+
+    private IEnumerator shoot()
+    {
+        do
+        {
+            GameObject line = Instantiate(Linerenderer, transform.position, transform.rotation);
+
+            line.GetComponent<LineRenderer>().SetPosition(0, transform.GetChild(4).transform.position);
+            RaycastHit hit;
+            if (Physics.Raycast(Camera.transform.position, Camera.transform.forward, out hit, 300))
+            {
+                line.GetComponent<LineRenderer>().SetPosition(1, hit.point);
+                GameObject bulletimpact = Instantiate(Impact, hit.point, Quaternion.LookRotation(hit.normal));
+                if (hit.collider.tag == "Ennemi")
+                {
+                    hit.collider.gameObject.GetComponent<Ennemi_Behavior>().death();
+                }
+            }
+            else
+            {
+                line.GetComponent<LineRenderer>().SetPosition(1, Camera.transform.position + 300 * Camera.transform.forward);
+            }
+            StartCoroutine(despawn_bullet(line));
+            yield return new WaitForSeconds(0.15f);
+        } while (is_shooting);
     }
 
     public void Shoot(InputAction.CallbackContext context)
     {
         if (context.started)
         {
-            linerenderer.enabled = true;
-            RaycastHit hit;
-            linerenderer.SetPosition(0, transform.GetChild(4).transform.position);
-            
-            if (Physics.Raycast(Camera.transform.position, Camera.transform.forward, out hit, 300))
+            if (transform.name == "Rifle_00")
             {
-                linerenderer.SetPosition(1, hit.point);
+                is_shooting = true;
             }
-            else
-            {
-                linerenderer.SetPosition(1, Camera.transform.position + 300 * Camera.transform.forward);
-            }
-            StartCoroutine(despawn_bullet());
+            StartCoroutine(shoot());
+        }
+        if (context.canceled)
+        {
+            is_shooting = false;
         }
     }
 }
