@@ -13,7 +13,8 @@ public class Gun_Behavior : MonoBehaviour
     [SerializeField] private float recoil;
     [SerializeField] private GameObject next_weapon;
     private bool is_shooting = false;
-    
+    private bool is_swapping = false;
+
 
     private void Update()
     {
@@ -30,6 +31,10 @@ public class Gun_Behavior : MonoBehaviour
     {
         do
         {
+            if (is_swapping)
+            {
+                break;
+            }
             Player.GetComponent<Player_Movement>().rotationX -= recoil;
             GameObject line = Instantiate(Linerenderer, transform.position, transform.rotation);
 
@@ -61,7 +66,10 @@ public class Gun_Behavior : MonoBehaviour
             {
                 is_shooting = true;
             }
-            StartCoroutine(shoot());
+            if (!is_swapping)
+            {
+                StartCoroutine(shoot());
+            }
         }
         if (context.canceled)
         {
@@ -75,6 +83,7 @@ public class Gun_Behavior : MonoBehaviour
         {
             if (this.gameObject.activeSelf)
             {
+                is_swapping = true;
                 StartCoroutine(swap());
             }
         }
@@ -99,6 +108,7 @@ public class Gun_Behavior : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
         this.gameObject.SetActive(false);
+        is_swapping = false;
     }
 
 }
