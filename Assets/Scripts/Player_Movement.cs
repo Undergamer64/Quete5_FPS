@@ -17,7 +17,7 @@ public class Player_Movement : MonoBehaviour
     [SerializeField] private float JumpPower;
     [SerializeField] private GameObject Slider;
     [SerializeField] private GameObject text;
-    private float sensibility;
+    public float sensibility;
     public float rotationX, rotationY;
     public bool Grounded = false;
     [SerializeField] private float gravity;
@@ -29,7 +29,7 @@ public class Player_Movement : MonoBehaviour
     {
         sensibility = 80;
         rotationX = 0;
-        rotationY = 0;
+        rotationY = 90;
     }
 
     private void Start()
@@ -84,6 +84,10 @@ public class Player_Movement : MonoBehaviour
         if (mouselock)
         {
             HorizontalVelocity = new Vector3(context.ReadValue<Vector2>().x * movespeed, context.ReadValue<Vector2>().y * movespeed, 0);
+        }
+        else
+        {
+            HorizontalVelocity = Vector3.zero;
         }
     }
 
