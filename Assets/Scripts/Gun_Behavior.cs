@@ -65,9 +65,13 @@ public class Gun_Behavior : MonoBehaviour
                 line.GetComponent<LineRenderer>().SetPosition(1, Camera.transform.position + 300 * Camera.transform.forward);
             }
             StartCoroutine(despawn_bullet(line));
-            if (spread < 0.1f)
+            if (spread < 0.1f && !is_aiming)
             {
                 spread += 0.01f;
+            }
+            else if (spread < 0.05f && is_aiming)
+            {
+                spread += 0.005f;
             }
             yield return new WaitForSeconds(0.15f);
         } while (is_shooting);
